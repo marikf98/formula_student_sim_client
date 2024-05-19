@@ -12,22 +12,58 @@ import os
 import cv2
 import struct
 
-
+# Decimation factor for saving output images
 decimation = 30e9  # Used to save an output image every X iterations.
 
+"""
+cone_mapping.py
+---------------
+This script is part of the Formula Racing Simulation for Ben Gurion University.
+
+It uses the Airsim client to perform the following tasks:
+
+1. Aggregates detections from the LIDAR sensor.
+2. Processes the camera images to determine the color of the detected cones.
+3. Runs a mapping loop that:
+   - Establishes a connection with the Airsim client and enables API control.
+   - Detects cones using LIDAR and classifies them using the cameras.
+   - Filters and clusters the LIDAR point cloud.
+   - Tracks the detected cones and updates their positions and colors.
+   - Calculates the desired steering angle using a pure pursuit controller.
+   - Controls the vehicle based on the calculated steering angle.
+
+Dependencies:
+- numpy
+- time
+- pickle
+- sklearn.cluster
+- airsim
+- dbscan_utils
+- spatial_utils
+- tracker_utils
+- camera_utils
+- path_control
+- os
+- cv2
+- struct
+
+Usage:
+Run this script to perform cone mapping. Ensure that the Unreal Engine simulation is running and the Airsim client is properly set up.
+"""
+# Function to aggregate detections from the LIDAR sensor
 
 def aggregate_detections(airsim_client, iterations=1):
     pointcloud = np.array([])
     for curr_iter in range(iterations):
-        lidar_data = airsim_client.getLidarData()
-        pointcloud = np.append(pointcloud, np.array(lidar_data.point_cloud, dtype=np.dtype('f4')))
-    return np.reshape(pointcloud, (int(pointcloud.shape[0] / 3), 3))
+        lidar_data = airsim_client.getLidarData() # Get the LIDAR data from the AirSim client
+        pointcloud = np.append(pointcloud, np.array(lidar_data.point_cloud, dtype=np.dtype('f4'))) # Append the LIDAR data to the point cloud
+    return np.reshape(pointcloud, (int(pointcloud.shape[0] / 3), 3)) # Reshape the point cloud to have 3 columns (x, y, z)
 
-
+# Function to process the camera images and determine the color of the detected cones
 def process_camera(lidar_to_cam, vector, camera, image, tracked_cone, idx, copy_img):
-    vector_camera = np.matmul(lidar_to_cam, vector)[:3]
-    hsv_image, hsv_success = camera.get_cropped_hsv(image, vector_camera)
-    cone_color = tracked_cone.determine_color(hsv_image) if hsv_success else 0
+    vector_camera = np.matmul(lidar_to_cam, vector)[:3] # Transform the vector from the LIDAR frame to the camera frame
+    hsv_image, hsv_success = camera.get_cropped_hsv(image, vector_camera) # Get the cropped HSV image from the camera
+    cone_color = tracked_cone.determine_color(hsv_image) if hsv_success else 0 # Determine the color of the cone if the HSV image was successfully obtained
     global decimation
     if idx > decimation and hsv_success:
         if cone_color == 0:
@@ -40,14 +76,14 @@ def process_camera(lidar_to_cam, vector, camera, image, tracked_cone, idx, copy_
         copy_img = cv2.rectangle(copy_img, [w_range[1], h_range[1]], [w_range[0], h_range[0]], bgr_color, 1)
     return cone_color
 
-
+# Main mapping loop
 def mapping_loop(client):
     global decimation
-    image_dest = os.path.join(os.getcwd(), 'images')
-    data_dest = os.path.join(os.getcwd(), 'recordings')
-    os.makedirs(image_dest, exist_ok=True)
-    os.makedirs(data_dest, exist_ok=True)
-    save_data = False
+    image_dest = os.path.join(os.getcwd(), 'images') # Define the destination directory for the images
+    data_dest = os.path.join(os.getcwd(), 'recordings') # Define the destination directory for the recordings
+    os.makedirs(image_dest, exist_ok=True) # Create the image directory if it doesn't exist
+    os.makedirs(data_dest, exist_ok=True) # Create the recording directory if it doesn't exist
+    save_data = False # Initialize the save_data flag as False
 
     # Constant transform matrices:
     # Notating A_to_B means that taking a vector in frame A and left-multiplying by the matrix
@@ -205,17 +241,17 @@ def mapping_loop(client):
 
 
 if __name__ == '__main__':
-    airsim_client = airsim.CarClient()
-    airsim_client.confirmConnection()
-    airsim_client.enableApiControl(True)
+    airsim_client = airsim.CarClient() # Create an AirSim Car Client instance
+    airsim_client.confirmConnection() # Confirm the connection to the AirSim client
+    airsim_client.enableApiControl(True) # Enable API control for the AirSim client
 
-    steering_procedure_manager = path_control.SteeringProcManager()
-    dump = mapping_loop(airsim_client)
+    steering_procedure_manager = path_control.SteeringProcManager() # Create a Steering Procedure Manager instance
+    dump = mapping_loop(airsim_client) # Start the mapping loop
 
     # Done! stop vehicle:
-    steering_procedure_manager.terminate_steering_procedure()
-    vehicle_controls = airsim_client.getCarControls()
-    vehicle_controls.throttle = 0.0
-    vehicle_controls.brake = 1.0
-    airsim_client.setCarControls(vehicle_controls)
+    steering_procedure_manager.terminate_steering_procedure() # Terminate the steering procedure
+    vehicle_controls = airsim_client.getCarControls() # Get the current vehicle controls
+    vehicle_controls.throttle = 0.0 # Set the throttle to 0 to stop the vehicle
+    vehicle_controls.brake = 1.0 # Apply the brake to ensure the vehicle is stopped
+    airsim_client.setCarControls(vehicle_controls) # Apply the updated vehicle controls
 

@@ -10,11 +10,38 @@ import struct
 import csv
 import os
 
+"""
+path_following.py
+-----------------
+This script is part of the Formula Racing Simulation for Ben Gurion University.
+
+It uses the Airsim client to perform the following tasks:
+
+1. Establishes a connection with the Airsim client and enables API control.
+2. Follows a predefined path using Stanley's method.
+3. Stops the vehicle once the path following process is complete.
+4. Saves the following data to a specified directory.
+
+Dependencies:
+- spline_utils: Utility module for generating and working with splines.
+- airsim: AirSim Python client library.
+- path_control: Module for controlling the path following process.
+- pidf_controller: Module for PIDF control.
+- spatial_utils: Utility module for spatial transformations.
+- numpy: Python library for numerical computations.
+- time: Standard Python library for time-related tasks.
+- pickle: Standard Python library for serializing and de-serializing Python object structures.
+- csv: Standard Python library for reading and writing CSV files.
+- os: Standard Python library for interacting with the operating system.
+
+Usage:
+Run this script to start the path following process. Ensure that the Unreal Engine simulation is running and the Airsim client is properly set up.
+"""
 
 def following_loop(client, spline_obj=None):
-    data_dest = os.path.join(os.getcwd(), 'recordings')
-    os.makedirs(data_dest, exist_ok=True)
-    save_data = False
+    data_dest = os.path.join(os.getcwd(), 'recordings')  # Define the destination directory for the recordings
+    os.makedirs(data_dest, exist_ok=True) # Create the recording directory if it doesn't exist
+    save_data = False # Initialize the save_data flag as False
 
     # In case the file is run as standalone, no mapping procedure was made.
     # Hence, we need to build the spline path out of known cone locations.
@@ -37,12 +64,12 @@ def following_loop(client, spline_obj=None):
         x += x_offset
         y += y_offset
         y *= -1
-        spline_obj = PathSpline(x, y)
-        spline_obj.generate_spline(0.1, smoothing=1)
-        spatial_utils.set_airsim_pose(client, [0.0, 0.0], [90.0, 0, 0])
+        spline_obj = PathSpline(x, y) # Create a Path Spline object
+        spline_obj.generate_spline(0.1, smoothing=1) # Generate the spline for the path
+        spatial_utils.set_airsim_pose(client, [0.0, 0.0], [90.0, 0, 0]) # Set the initial pose of the vehicle
 
     # Define Stanley-method parameters:
-    follow_handler = path_control.StanleyFollower(spline_obj)
+    follow_handler = path_control.StanleyFollower(spline_obj) # Create a Stanley Follower instance
     follow_handler.k_vel *= 2.0  # Arbitrary
     follow_handler.max_velocity = 15.0  # m/s
     follow_handler.min_velocity = 10.0  # m/s
