@@ -1,5 +1,22 @@
 import numpy as np
 
+"""
+dbscan_utils.py
+---------------
+This script is part of a simulation project for performing DBSCAN clustering on point cloud data.
+
+It performs the following tasks:
+
+1. Defines a function `filter_cloud` to filter a point cloud based on distance and height criteria.
+2. Defines a function `cluster_extent` to calculate the bounding-box extents of a cluster along the x and y axes.
+3. Defines a function `collate_segmentation` to separate the DBSCAN results into segments, calculate their centroids, and filter out segments that exceed a maximum extent.
+
+Dependencies:
+- numpy: Python library for numerical computations.
+
+Usage:
+Import this module to use the `filter_cloud`, `cluster_extent`, and `collate_segmentation` functions for DBSCAN clustering operations on point cloud data. Note that the actual DBSCAN operation is performed outside of this module.
+"""
 
 # The actual DBSCAN is performed outside of this module.
 
