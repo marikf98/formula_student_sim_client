@@ -8,11 +8,41 @@ import os
 import sys
 import time
 
+
+"""
+cone_analysis.py
+-----------------
+This script is part of the Formula Racing Simulation for Ben Gurion University.
+
+It performs the following tasks:
+
+1. Loads the true cone locations from a CSV file.
+2. If running in single run mode, it loads the mapping data from a pickle file and the car data from a CSV file.
+3. Separates the detected cones into blues, yellows, and unknowns.
+4. If running in single run mode, it calculates the spline points and saves them to a CSV file.
+5. If not running in single run mode, it calculates the detection errors for the blue and yellow cones and saves them to CSV files.
+
+Dependencies:
+- numpy: Python library for numerical computations.
+- pickle: Standard Python library for serializing and de-serializing Python object structures.
+- csv: Standard Python library for reading and writing CSV files.
+- tracker_utils: Utility module for tracking cones.
+- spline_utils: Utility module for generating and working with splines.
+- matplotlib: Python library for creating static, animated, and interactive visualizations in Python.
+- os: Standard Python library for interacting with the operating system.
+- sys: Provides access to some variables used or maintained by the Python interpreter and to functions that interact strongly with the interpreter.
+- time: Standard Python library for time-related tasks.
+
+Usage:
+Run this script to start the cone analysis. Ensure that the Unreal Engine simulation is running and the Airsim client is properly set up.
+"""
+
+# Define the colors for the cones
 COLOR_UNKNOWN = tracker_utils.ConeTracker.COLOR_UNKNOWN
 COLOR_BLUE = tracker_utils.ConeTracker.COLOR_BLUE
 COLOR_YELLOW = tracker_utils.ConeTracker.COLOR_YELLOW
 
-
+# Function to count the number of detections for each color
 def count_detections(trackers_list, expected_color):
     unknown_count = 0
     misclass_count = 0
@@ -27,7 +57,7 @@ def count_detections(trackers_list, expected_color):
                     misclass_count += 1
     return unknown_count, misclass_count, detection_counts
 
-
+# Function to calculate the errors in the cone detection
 def calculate_errors(trackers_list, cones_list):
     squared_errors = np.array([])
     for curr_tracker in trackers_list:
@@ -41,7 +71,7 @@ def calculate_errors(trackers_list, cones_list):
             squared_errors = np.append(squared_errors, dist)
     return squared_errors
 
-
+# Flag to indicate if the script is running in single run mode
 single_run = True
 player_start = np.array([12.1, 18.7])
 

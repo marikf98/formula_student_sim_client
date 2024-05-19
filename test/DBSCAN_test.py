@@ -7,6 +7,31 @@ import csv
 from matplotlib import pyplot as plt
 from sklearn.cluster import DBSCAN
 
+"""
+DBSCAN_test.py
+--------------
+This script is part of the Formula Racing Simulation for Ben Gurion University.
+
+It performs the following tasks:
+
+1. Loads a point cloud from a pickle file.
+2. Filters the point cloud based on specified criteria.
+3. Applies the DBSCAN algorithm to the filtered point cloud.
+4. Segments the point cloud into clusters and calculates the centroids of the clusters.
+5. Visualizes the segmented point cloud and the centroids.
+
+Dependencies:
+- numpy: Python library for numerical computations.
+- scipy.spatial.transform: Module for 3D rotations and transformations.
+- time: Standard Python library for time-related tasks.
+- pickle: Standard Python library for serializing and de-serializing Python object structures.
+- csv: Standard Python library for reading and writing CSV files.
+- matplotlib: Python library for creating static, animated, and interactive visualizations in Python.
+- sklearn.cluster: Module for clustering data.
+
+Usage:
+Run this script to start the DBSCAN test. Ensure that the point cloud data is available in a pickle file.
+"""
 
 def cluster_extent(cluster):
     # Returns an array of the bounding-box extents of the cluster along the x and y axes.
@@ -14,12 +39,13 @@ def cluster_extent(cluster):
 
 
 if __name__ == '__main__':
-
+    # Load point cloud from a pickle file
     with open('pointcloud.pickle', 'rb') as pickle_file:
         pointcloud = pickle.load(pickle_file)
     print('loaded pointcloud data')
     tic = time.time()
     pointcloud[:, 2] *= -1  # Z is reversed in airsim because of flying convention
+    # Filter the point cloud based on specified criteria
     distances = np.linalg.norm(pointcloud, axis=1)
     filtered_indices = np.bitwise_and(distances < 10.0,
                                       distances > 5.0)
@@ -29,6 +55,7 @@ if __name__ == '__main__':
     print('filtering takes:', time.time()-tic)
     tic = time.time()
 
+    # Apply the DBSCAN algorithm to the filtered point cloud
     # Compute DBSCAN
     db = DBSCAN(eps=0.1, min_samples=3).fit(filtered_pc)
     print('DBSCAN takes:', time.time() - tic)
@@ -49,6 +76,8 @@ if __name__ == '__main__':
     groups = {}
     centroids = {}
     max_extent = 0.5  # Diameter of a cone. Any cluster larger than that will be disqualified.
+
+    # Segment the point cloud into clusters and calculate the centroids of the clusters
     for idx in unique_labels:
         if idx != -1:
             class_member_mask = (labels == idx)
@@ -63,6 +92,7 @@ if __name__ == '__main__':
     print('segmentation takes:', time.time() - tic)
     tic = time.time()
 
+    # Visualize the segmented point cloud and the centroids
     # Black removed and is used for noise instead.
     colors = [plt.cm.Spectral(each)
               for each in np.linspace(0, 1, len(unique_labels))]

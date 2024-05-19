@@ -11,9 +11,39 @@ import path_control
 import os
 import cv2
 
+"""
+image_debug.py
+--------------
+This script is part of the Formula Racing Simulation for Ben Gurion University.
+
+It performs the following tasks:
+
+1. Sets up the AirSim environment and initializes the camera objects.
+2. Collects LiDAR and camera data from the AirSim environment.
+3. Applies the DBSCAN algorithm to the collected LiDAR data to segment the point cloud.
+4. Tracks the detected cones and estimates their color based on the camera images.
+5. Saves the processed images and tracked cones data.
+
+Dependencies:
+- numpy: Python library for numerical computations.
+- time: Standard Python library for time-related tasks.
+- pickle: Standard Python library for serializing and de-serializing Python object structures.
+- airsim: Python client for AirSim.
+- dbscan_utils: Custom module for DBSCAN utilities.
+- spatial_utils: Custom module for spatial utilities.
+- tracker_utils: Custom module for tracker utilities.
+- camera_utils: Custom module for camera utilities.
+- path_control: Custom module for path control utilities.
+- os: Standard Python library for interacting with the operating system.
+- cv2: OpenCV library for computer vision tasks.
+
+Usage:
+Run this script to perform the tasks mentioned above. Ensure that the AirSim environment is set up correctly.
+"""
+# Define the decimation factor
 decimation = 10
 
-
+# Function to aggregate detections from the LiDAR sensor
 def aggregate_detections(airsim_client, iterations=1):
     pointcloud = np.array([])
     for curr_iter in range(iterations):
@@ -21,7 +51,7 @@ def aggregate_detections(airsim_client, iterations=1):
         pointcloud = np.append(pointcloud, np.array(lidar_data.point_cloud, dtype=np.dtype('f4')))
     return np.reshape(pointcloud, (int(pointcloud.shape[0] / 3), 3))
 
-
+# Function to process the camera data and estimate the color of the detected cones
 def process_camera(lidar_to_cam, vector, camera, image, tracked_cone, idx, copy_img):
     vector_camera = np.matmul(lidar_to_cam, vector)[:3]
     hsv_image, hsv_success = camera.get_cropped_hsv(image, vector_camera)
@@ -42,7 +72,7 @@ def process_camera(lidar_to_cam, vector, camera, image, tracked_cone, idx, copy_
         # hsv_image, hsv_success = camera.get_cropped_hsv(image, vector_camera)
     return cone_color
 
-
+# Main function to perform the mapping loop
 def mapping_loop(client):
     global decimation
     image_dest = os.path.join(os.getcwd(), 'images')

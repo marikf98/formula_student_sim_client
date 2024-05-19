@@ -10,8 +10,40 @@ import airsim
 import dbscan_utils
 from spatial_utils import set_initial_pose
 
+"""
+DBSCAN_online.py
+-----------------
+This script is part of the Formula Racing Simulation for Ben Gurion University.
+
+It performs the following tasks:
+
+1. Connects to the AirSim simulator.
+2. Sets the initial pose of the vehicle.
+3. Runs a loop for a specified duration where it:
+    - Aggregates detections from the LiDAR sensor.
+    - Filters the point cloud based on specified criteria.
+    - Applies the DBSCAN algorithm to the filtered point cloud.
+    - Stores the segmentation and centroids of the detected clusters.
+4. After the loop, it saves the segmentation and centroids to a pickle file.
+
+Dependencies:
+- numpy: Python library for numerical computations.
+- scipy.spatial.transform: Module for 3D rotations and transformations.
+- time: Standard Python library for time-related tasks.
+- pickle: Standard Python library for serializing and de-serializing Python object structures.
+- csv: Standard Python library for reading and writing CSV files.
+- matplotlib: Python library for creating static, animated, and interactive visualizations in Python.
+- sklearn.cluster: Module for clustering data.
+- airsim: Python library for the AirSim simulator.
+- dbscan_utils: Custom module for DBSCAN utilities.
+- spatial_utils: Custom module for spatial utilities.
+
+Usage:
+Run this script to start the online DBSCAN test. Ensure that the AirSim simulator is running and the AirSim client is properly set up.
+"""
 
 def aggregate_detections(airsim_client, iterations=2):
+    # Function to aggregate detections from the LiDAR sensor
     pointcloud = np.array([])
     for curr_iter in range(iterations):
         lidarData = airsim_client.getLidarData()
@@ -37,6 +69,7 @@ if __name__ == '__main__':
     start_time = time.time()
     idx = 0
     while time.time() - start_time < 30:
+        # Main loop where the point cloud is aggregated, filtered, and segmented, and the segmentation and centroids are stored
         # Constant throttle 0.1 (speed in the future)
         # trackers over centroids
         # separate into left/right
@@ -59,6 +92,7 @@ if __name__ == '__main__':
             idx += 1
             time.sleep(0.1)
 
+    # Save the segmentation and centroids to a pickle file
     pickle_data = {}
     pickle_data['all_segments'] = all_segments
     pickle_data['all_centroids'] = all_centroids
