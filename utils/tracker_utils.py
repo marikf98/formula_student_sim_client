@@ -1,8 +1,28 @@
 import numpy as np
 
+"""
+tracker_utils.py
+----------------
+This script is part of a simulation project for controlling a vehicle's path.
+
+It performs the following tasks:
+
+1. Defines a class `ObjectTracker` for tracking objects based on their position.
+2. The `ObjectTracker` class initializes with an initial position and has methods to process new detections and check proximity to a given point.
+3. Defines a subclass `ConeTracker` of `ObjectTracker` for tracking cones specifically. It has additional methods to determine the color of the cone and generate a color histogram.
+4. Defines a function `compare_trackers` to compare a given position with a list of trackers and update or create a new tracker as necessary.
+5. Defines a function `estimate_cone_color` to estimate the color of a cone based on an HSV image.
+
+Dependencies:
+- numpy: Python library for numerical computations.
+
+Usage:
+Import this module to use the `ObjectTracker` and `ConeTracker` classes for tracking objects and cones respectively based on their positions. The `compare_trackers` function can be used to compare a given position with a list of trackers and update or create a new tracker as necessary. The `estimate_cone_color` function can be used to estimate the color of a cone based on an HSV image. These functionalities are useful for controlling a vehicle's path.
+"""
 
 class ObjectTracker:
     def __init__(self, initial_position, distance=1.0):
+        # Initialize with initial position and distance
         self.position = np.array(initial_position)
         self.detections = [np.array(initial_position)]
 
@@ -17,6 +37,7 @@ class ObjectTracker:
         self.num_misdetections = 0
 
     def process_detection(self, new_point):
+        # Process new detection point
         detection = np.array(new_point)
         self.detections.append(detection)
         self.num_detections += 1
@@ -32,6 +53,7 @@ class ObjectTracker:
         pass
 
     def check_proximity(self, point):
+        # Check proximity to a given point
         # Assuming point is a size-3 numpy array in the order of x-y-z.
         if np.linalg.norm(point - self.position) <= self.proximity_distance:
             return True
@@ -61,6 +83,7 @@ class ConeTracker(ObjectTracker):
         self.color_history = [ConeTracker.COLOR_UNKNOWN]
 
     def determine_color(self, hsv_image):
+        # Determine color of the cone
         resulting_color = estimate_cone_color(hsv_image)
         if resulting_color != self.COLOR_UNKNOWN:
             # Only change colors if a valid result is determined.
@@ -73,6 +96,7 @@ class ConeTracker(ObjectTracker):
 
     @classmethod
     def generate_histogram(cls, hsv_image):
+        # Generate color histogram of the cone
         # Create a mask of known ranges of saturation (to differentiate cone from asphalt background):
         saturation_mask = np.logical_or(np.logical_and(hsv_image[:, :, 1] >= cls.SAT_MIN_YELLOW,
                                                        hsv_image[:, :, 1] <= cls.SAT_MAX_YELLOW),
@@ -98,6 +122,7 @@ def compare_trackers(centroid_pos, tracker_list):
 
 # For use outside of the class:
 def estimate_cone_color(hsv_image):
+    # Estimate color of the cone
     histogram = ConeTracker.generate_histogram(hsv_image)
     # Summing histogram counts of blue and yellow:
     blue_score = np.sum(histogram[ConeTracker.HUE_MIN_BLUE:ConeTracker.HUE_MAX_BLUE])

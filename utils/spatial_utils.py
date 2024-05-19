@@ -1,6 +1,27 @@
 from scipy.spatial.transform import Rotation
 import numpy as np
 
+"""
+spatial_utils.py
+----------------
+This script is part of a simulation project for controlling a vehicle's path.
+
+It performs the following tasks:
+
+1. Defines several functions for converting between different coordinate systems (Engineering, Unreal, AirSim, and Camera).
+2. Defines functions for extracting position and rotation from AirSim's Pose object.
+3. Defines a function to set the AirSim pose.
+4. Defines functions to create transformation matrices from position and rotation in different coordinate systems.
+
+Dependencies:
+- scipy: Python library for scientific computations.
+- numpy: Python library for numerical computations.
+- airsim: Python library for the AirSim simulation environment.
+
+Usage:
+Import this module to use the provided functions for converting between different coordinate systems, extracting position and rotation from AirSim's Pose object, setting the AirSim pose, and creating transformation matrices from position and rotation in different coordinate systems. These functions are useful for controlling a vehicle's path in the AirSim simulation environment.
+"""
+
 # Unreal has a left-handed coordinate system, with odd rotations.
 # The order of rotation is an intrinsic yaw -> pitch -> roll schema.
 # To transfer from Unreal to engineering notations, one must:
@@ -11,6 +32,7 @@ import numpy as np
 # with X pointing forward, Y pointing left and Z pointing up.
 # Cascaded multiplications add up from the left-hand side.
 
+# Bottom row for transformation matrices
 bottom_row = np.array([0.0, 0.0, 0.0, 1.0]).reshape(1, 4)
 
 
@@ -44,7 +66,7 @@ def camera_to_eng(pos):
     new_pos = np.array([pos[2], -pos[0], -pos[1]])
     return new_pos
 
-
+# Set the AirSim pose
 def set_airsim_pose(airsim_client, desired_position, desired_rot, inherit_z=True):
     # Input is in ENG coordinate system!
     # Both desired position and rotation must have 3 elements: [x,y,z] and [yaw,pitch,roll].
@@ -75,6 +97,7 @@ def set_airsim_pose(airsim_client, desired_position, desired_rot, inherit_z=True
     airsim_client.simSetVehiclePose(initial_pose, ignore_collision=True)
 
 
+# Extract rotation from AirSim's Pose object
 def extract_rotation_from_airsim(orientation):
     # Input should be a Quaternionr() object directly from Airsim.
     # Output is in Airsim coordinate system.
@@ -85,6 +108,7 @@ def extract_rotation_from_airsim(orientation):
     return Rotation.from_quat(quaternion).as_euler('ZYX', degrees=True)
 
 
+# Extract position and rotation from AirSim's Pose object
 def extract_pose_from_airsim(actor_pose):
     # Input is an Airsim Pose() object.
     # Output is in ENG coordinate system.
@@ -93,7 +117,7 @@ def extract_pose_from_airsim(actor_pose):
     pos, rot = convert_eng_airsim(position, rotation)
     return pos, rot
 
-
+# Create a transformation matrix from position and rotation in ENG coordinate system
 def tf_matrix_from_eng_pose(position, rotation):
     # Input is position and rotation objects in ENG coordinate system.
     # Output is a 4x4 transform matrix in ENG coordinate system.
@@ -104,6 +128,7 @@ def tf_matrix_from_eng_pose(position, rotation):
     return tf_matrix
 
 
+# Create a transformation matrix from position and rotation in Unreal coordinate system
 def tf_matrix_from_unreal_pose(position, rotation):
     # Input is position and rotation objects in Unreal coordinate system.
     # Output is a 4x4 transform matrix in ENG coordinate system.
@@ -112,6 +137,7 @@ def tf_matrix_from_unreal_pose(position, rotation):
     return tf_matrix_from_eng_pose(pos, rot)
 
 
+# Create a transformation matrix from position and rotation in AirSim coordinate system
 def tf_matrix_from_airsim_pose(position, rotation):
     # Input is position and rotation objects in Airsim coordinate system.
     # Output is a 4x4 transform matrix in ENG coordinate system.
@@ -119,7 +145,7 @@ def tf_matrix_from_airsim_pose(position, rotation):
     pos, rot = convert_eng_airsim(position, yaw_pitch_roll)
     return tf_matrix_from_eng_pose(pos, rot)
 
-
+# Create a transformation matrix from AirSim's Pose object
 def tf_matrix_from_airsim_object(actor_pose):
     # Input is an Airsim Pose() object.
     # Output is a 4x4 transform matrix in ENG coordinate system.
@@ -129,6 +155,7 @@ def tf_matrix_from_airsim_object(actor_pose):
     return tf_matrix_from_eng_pose(pos, rot)
 
 
+# Main function for testing
 if __name__ == "__main__":
     import airsim
     import time

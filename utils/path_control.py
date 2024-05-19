@@ -7,14 +7,38 @@ from multiprocessing import shared_memory
 from pidf_controller import PidfControl
 from discrete_plant_emulator import DiscretePlant
 
+"""
+path_control.py
+---------------
+This script is part of a simulation project for controlling the path of a vehicle.
 
+It performs the following tasks:
+
+1. Defines a class `StanleyFollower` for implementing the Stanley path following algorithm.
+2. The `StanleyFollower` class initializes with parameters like path spline, max velocity, min velocity, max steering, lookahead distance, and Stanley steering coefficient.
+3. The class has a method `calc_ref_speed_steering` to calculate the reference speed and steering angle for the vehicle.
+4. Defines a class `PursuitFollower` for implementing the Pure Pursuit path following algorithm.
+5. The `PursuitFollower` class initializes with parameters like min lookahead distance and max lookahead distance.
+6. The class has a method `calc_ref_steering` to calculate the reference steering angle for the vehicle.
+7. Defines a class `SteeringProcManager` for managing the steering procedure in a separate process.
+8. The `SteeringProcManager` class has methods to create, retrieve, detach, and terminate the steering procedure.
+
+Dependencies:
+- numpy: Python library for numerical computations.
+- spline_utils: Custom module for spline utilities.
+- pidf_controller: Custom module for PIDF control.
+- discrete_plant_emulator: Custom module for emulating a discrete plant.
+- time, struct, multiprocessing, shared_memory: Standard Python libraries for time-related tasks, binary data, multiprocessing, and shared memory respectively.
+
+Usage:
+Import this module to use the `StanleyFollower`, `PursuitFollower`, and `SteeringProcManager` classes for controlling the path of a vehicle. The Stanley and Pure Pursuit path following algorithms are used to calculate the reference speed and steering angle for the vehicle based on the path spline and the vehicle's current position, velocity, and heading. The steering procedure is run in a separate process and can be managed using the `SteeringProcManager` class.
+"""
+# Stanley path following algorithm
 class StanleyFollower:
     EPSILON = 1e-4  # For numerical stability
-
     def __init__(self, path_spline):
-
+        # Initialize with path spline and other parameters
         self.path = path_spline
-
         # Max steering MUST be the same as your simulated vehicle's settings within Unreal.
         self.max_velocity = 10.0  # m/s
         self.min_velocity = 5.0  # m/s
@@ -55,12 +79,12 @@ class StanleyFollower:
 
         return speed, steering_angle
 
-
+# Pure Pursuit path following algorithm
 class PursuitFollower:
     EPSILON = 1e-4  # For numerical stability
 
     def __init__(self, min_distance, max_distance):
-
+        # Initialize with min and max lookahead distances
         self.min_lookahead = min_distance
         self.max_lookahead = max_distance
         self.previous_angle = 0.0  # Optional as fallback angle instead of moving straight ahead.
@@ -70,6 +94,7 @@ class PursuitFollower:
 
     def calc_ref_steering(self, tracked_cones, map_to_vehicle):
         # Manage pursuit points list:
+        # Calculate reference steering angle
         last_blue = None
         last_yellow = None
         for curr_cone in reversed(tracked_cones):
@@ -110,7 +135,7 @@ class PursuitFollower:
 
         return steering_angle
 
-
+# Manager for the steering procedure
 class SteeringProcManager:
     shmem_active = None
     shmem_setpoint = None
@@ -123,13 +148,16 @@ class SteeringProcManager:
     memories_exist = False
 
     def __init__(self):
+        # Create steering procedure
         self.create_steering_procedure()
 
     def __del__(self):
+        # Terminate steering procedure
         self.terminate_steering_procedure()
 
     @classmethod
     def create_steering_procedure(cls):
+        # Create or pick up existing shared memory objects
         # Everything below is hardcoded, changes can be made by adding arguments:
         if not cls.memories_exist:
             cls.memories_exist = True
@@ -169,7 +197,7 @@ class SteeringProcManager:
     @classmethod
     def retrieve_shared_memories(cls):
         cls.create_steering_procedure()
-
+        # Retrieve shared memory objects
         shmem_active = shared_memory.SharedMemory(name='active_state', create=False)
         shmem_setpoint = shared_memory.SharedMemory(name='input_value', create=False)
         shmem_output = shared_memory.SharedMemory(name='output_value', create=False)
@@ -178,6 +206,7 @@ class SteeringProcManager:
 
     @classmethod
     def detach_shared_memories(cls, shared_memories_list=None):
+        # Detach shared memory objects
         if shared_memories_list is None:
             cls.shmem_active.buf[:1] = struct.pack('?', False)
             cls.shmem_active.close()
@@ -189,6 +218,7 @@ class SteeringProcManager:
 
     @classmethod
     def terminate_steering_procedure(cls):
+        # Terminate steering procedure
         # Should only be used if all processes have called detach_shared_memories!
         if cls.memories_exist:
             cls.shmem_active.buf[:1] = struct.pack('?', False)
@@ -201,6 +231,7 @@ class SteeringProcManager:
 
 # The function below was not used and left for reference only:
 def calc_dead_reckoning(car_pos, car_speed, heading, yaw_rate, delta_time):
+    # Calculate dead reckoning
     updated_heading = heading + delta_time * yaw_rate
     updated_pos = car_pos + delta_time * car_speed * np.array([np.cos(updated_heading), np.sin(updated_heading)])
     return updated_pos, updated_heading

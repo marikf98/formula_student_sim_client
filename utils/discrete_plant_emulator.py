@@ -7,7 +7,27 @@ import multiprocessing
 from multiprocessing import shared_memory
 import struct
 
+"""
+discrete_plant_emulator.py
+--------------------------
+This script is part of a simulation project for emulating a discrete plant and performing PIDF control.
 
+It performs the following tasks:
+
+1. Defines a class `DiscretePlant` for emulating a discrete plant of the form: k/(s^2+as).
+2. The `DiscretePlant` class initializes with parameters like time step, k, and a.
+3. The class has methods to iterate the plant's step and to asynchronously steer the plant using a PIDF controller.
+4. The script also includes utility functions to run the plant emulation in a subprocess or offline.
+
+Dependencies:
+- numpy: Python library for numerical computations.
+- matplotlib: Python library for creating static, animated, and interactive visualizations in Python.
+- pidf_controller: Custom module for PIDF control.
+- time, csv, multiprocessing, shared_memory, struct: Standard Python libraries for time-related tasks, CSV file handling, multiprocessing, shared memory, and binary data respectively.
+
+Usage:
+Run this script to perform the tasks mentioned above. The plant emulation can be run in a subprocess or offline. The PIDF controller is used to control the plant's output based on a setpoint.
+"""
 class DiscretePlant:
     def __init__(self, ts, k=1, a=1):
         # Emulates a discrete plant of the form: k/(s^2+as).

@@ -3,9 +3,30 @@ from scipy import interpolate
 from matplotlib import pyplot as plt
 import tracker_utils
 
+"""
+spline_utils.py
+---------------
+This script is part of a simulation project for controlling a vehicle's path.
+
+It performs the following tasks:
+
+1. Defines a class `PathSpline` for generating a path spline from given points.
+2. The `PathSpline` class initializes with x and y points and has methods to generate the spline and find the closest point on the spline to a given target point.
+3. Defines a function `generate_path_points` to generate a valid spline from a list of tracked cones.
+
+Dependencies:
+- numpy: Python library for numerical computations.
+- scipy: Python library for scientific computations.
+- matplotlib: Python library for creating static, animated, and interactive visualizations.
+- tracker_utils: Custom module for tracking utilities.
+
+Usage:
+Import this module to use the `PathSpline` class for generating a path spline from given points and finding the closest point on the spline to a given target point. The `generate_path_points` function can be used to generate a valid spline from a list of tracked cones. These functionalities are useful for controlling a vehicle's path.
+"""
 
 class PathSpline:
     def __init__(self, x_points, y_points):
+        # Initialize with x and y points
         self.xb = x_points  # Base points' x values
         self.yb = y_points  # Base points' y values
         self.xi = None  # Interpolated points' x values
