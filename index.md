@@ -1,9 +1,12 @@
 ---
-layout: default
+layout: custom
 title: Home
 ---
 
 # Formula Racing Simulation for Ben Gurion University
+[About](abount.md)
+
+
 ## Introduction
 Welcome to the Formula Racing Simulation project, designed for simulating the FSAE challenge within Unreal Engine using Airsim. 
 This project was created in 2021 and is optimized for that year's challenge specifications.
