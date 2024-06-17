@@ -10,22 +10,22 @@ header {
     padding: 10px;
     text-align: center;
 }
-nav.site-nav {
-    background-color: #f27d35 !important; /* Use !important if necessary */
-}
-nav.site-nav ul {
+nav ul {
     list-style-type: none;
     padding: 0;
     text-align: center;
 }
-nav.site-nav ul li {
+nav ul li {
     display: inline;
     margin: 0 10px;
 }
-nav.site-nav ul li a {
+nav ul li a {
     color: #ffffff;
     text-decoration: none;
 }
-nav.site-nav ul li a:hover {
+nav ul li a:hover {
     text-decoration: underline;
+}
+nav.site-nav {
+    background-color: #f27d35 !important; 
 }
