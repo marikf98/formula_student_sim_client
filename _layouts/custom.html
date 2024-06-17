@@ -3,11 +3,41 @@
 <head>
     <title>Racing Simulation</title>
     <link rel="stylesheet" href="{{ "/assets/css/style.css" | relative_url }}">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #ffffff; /* Example background color */
+        }
+        header {
+            background-color: #f27d35; /* Orange background color */
+            color: #ffffff; /* White text color */
+            padding: 10px;
+            text-align: center;
+        }
+        nav ul {
+            list-style-type: none;
+            padding: 0;
+            text-align: center;
+        }
+        nav ul li {
+            display: inline;
+            margin: 0 10px;
+        }
+        nav ul li a {
+            color: #ffffff; /* White text color for links */
+            text-decoration: none;
+        }
+        nav ul li a:hover {
+            text-decoration: underline; /* Underline on hover */
+        }
+    </style>
 </head>
 <body>
     <header>
-        <h1> Racing Simulation </h1>
-        <nav style="background-color: #f27d35;">
+        <h1>Racing Simulation</h1>
+        <nav>
             <ul>
                 <li><a href="{{ "/" | relative_url }}">Home</a></li>
                 <li><a href="{{ "/about" | relative_url }}">About</a></li>
