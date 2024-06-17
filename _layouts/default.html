@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>{{ site.title }}</title>
+    <title>{{ page.title }} - {{ site.title }}</title>
     <link rel="stylesheet" href="{{ "/assets/css/style.css" | relative_url }}">
 </head>
 <body>
@@ -10,7 +10,7 @@
         <nav>
             <ul>
                 <li><a href="{{ "/" | relative_url }}">Home</a></li>
-                <li><a href="{{ "/formula_student_sim_client/about.html" | relative_url }}">About</a></li>
+                <li><a href="{{ "/about.html" | relative_url }}">About</a></li>
             </ul>
         </nav>
     </header>
