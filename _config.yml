@@ -1,5 +1,6 @@
 title: Racing Simulation
 description: Documentation for Racing Simulation
+theme: minima
 baseurl: "/formula_student_sim_client"
 url: "https://marikf98.github.io"
 markdown: kramdown
