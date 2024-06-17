@@ -1,27 +1,8 @@
 title: Racing Simulation
 description: Documentation for Racing Simulation
 baseurl: "/formula_student_sim_client"
-url: "https://marikf98.github.io"
-
-theme: minima
-
+url: "https://your-username.github.io"  # Replace with your GitHub username
+theme: minima  # Only if you are using a theme
 markdown: kramdown
 plugins:
-  -jekyll-feed
-
-exclude:
-  - Gemfile
-  - Gemfile.lock
-  - node_modules
-  - vendor/bundle/
-  - vendor/cache/
-  - vendor/gems/
-
-github:
-  repository: marikf98/your-repository 
-
-navigation:
-  - title: Home
-    url: /
-  - title: About
-    url: /about
+  - jekyll-feed
