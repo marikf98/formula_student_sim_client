@@ -29,36 +29,36 @@ Run this script to start the simulation. Ensure that the Unreal Engine simulatio
 """
 if __name__ == '__main__':
     # Create an airsim client instance:
-    steering_procedure_manager = path_control.SteeringProcManager() # Create a Steering Procedure Manager instance
+    steering_procedure_manager = path_control.SteeringProcManager()  # Create a Steering Procedure Manager instance
     airsim_client = airsim.CarClient()  # Create an AirSim Car Client instance
     airsim_client.confirmConnection()  # Confirm the connection to the AirSim client
-    airsim_client.enableApiControl(True) # Enable API control for the AirSim client
+    airsim_client.enableApiControl(True)  # Enable API control for the AirSim client
 
     # Detect the cones and spline points, and return their location:
     print('Starting on-the-fly cone mapping with constant speed and steering procedure.')
-    mapping_data, pursuit_points = cone_mapping.mapping_loop(airsim_client) # Start the cone mapping process
+    mapping_data, pursuit_points = cone_mapping.mapping_loop(airsim_client)  # Start the cone mapping process
     print('Mapping complete!')
 
     # Stop until spline generation is complete:
     print('Stopping vehicle and generating a path to follow...')
-    car_controls = airsim_client.getCarControls() # Get the current car controls
-    car_controls.throttle = 0.0 # Set the throttle to 0 to stop the car
-    airsim_client.setCarControls(car_controls) # Apply the updated car controls
+    car_controls = airsim_client.getCarControls()  # Get the current car controls
+    car_controls.throttle = 0.0  # Set the throttle to 0 to stop the car
+    airsim_client.setCarControls(car_controls)  # Apply the updated car controls
 
     # Arrange the points and generate a path spline:
-    track_points = spline_utils.generate_path_points(mapping_data) # Generate path points from the mapping data
-    spline_obj = spline_utils.PathSpline(track_points[::2, 0], track_points[::2, 1]) # Create a Path Spline object
-    spline_obj.generate_spline(amount=0.1, meters=True, smoothing=1) # Generate the spline for the path
+    track_points = spline_utils.generate_path_points(mapping_data)  # Generate path points from the mapping data
+    spline_obj = spline_utils.PathSpline(track_points[::2, 0], track_points[::2, 1])  # Create a Path Spline object
+    spline_obj.generate_spline(amount=0.1, meters=True, smoothing=1)  # Generate the spline for the path
     print('Done!')
 
     # Follow the spline using Stanley's method:
     print('Starting variable speed spline following procedure.')
-    path_following.following_loop(airsim_client, spline_obj) # Start the path following process
+    path_following.following_loop(airsim_client, spline_obj)  # Start the path following process
     print('Full process complete! stopping vehicle.')
 
     # Done! stop vehicle:
-    car_controls = airsim_client.getCarControls() # Get the current car controls
-    car_controls.throttle = 0.0 # Set the throttle to 0 to stop the car
-    car_controls.brake = 1.0 # Apply the brake to ensure the car is stopped
-    airsim_client.setCarControls(car_controls) # Apply the updated car controls
-    steering_procedure_manager.terminate_steering_procedure() # Terminate the steering procedure
+    car_controls = airsim_client.getCarControls()  # Get the current car controls
+    car_controls.throttle = 0.0  # Set the throttle to 0 to stop the car
+    car_controls.brake = 1.0  # Apply the brake to ensure the car is stopped
+    airsim_client.setCarControls(car_controls)  # Apply the updated car controls
+    steering_procedure_manager.terminate_steering_procedure()  # Terminate the steering procedure
